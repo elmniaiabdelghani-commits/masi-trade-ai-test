@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASI Trade AI - Analyse Technique Bourse de Casablanca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'masi': {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        'bourse': {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            600: '#475569',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #22c55e 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .tradingview-widget-container { height: 100%; width: 100%; }
+        .input-dark {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        .input-dark:focus {
+            border-color: #22c55e;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+        }
+    </style>
+</head>
+<body class="text-white antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-masi-500 to-blue-600 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold gradient-text">MASI Trade AI</h1>
+                        <p class="text-xs text-gray-400">Bourse de Casablanca</p>
+                    </div>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#dashboard" class="text-sm font-medium text-gray-300 hover:text-masi-500 transition">Tableau de Bord</a>
+                    <a href="#analyse" class="text-sm font-medium text-gray-300 hover:text-masi-500 transition">Analyse IA</a>
+                    <a href="#money-management" class="text-sm font-medium text-gray-300 hover:text-masi-500 transition">Money Management</a>
+                    <a href="#screener" class="text-sm font-medium text-gray-300 hover:text-masi-500 transition">Screener</a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-masi-500/10 border border-masi-500/20">
+                        <div class="w-2 h-2 rounded-full bg-masi-500 animate-pulse"></div>
+                        <span class="text-xs font-medium text-masi-500">Marché Ouvert</span>
+                    </div>
+                    <button class="md:hidden text-gray-300 hover:text-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-20 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Hero Section -->
+        <section class="mb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- MASI Index Card -->
+                <div class="glass-panel rounded-2xl p-6 border border-masi-500/20">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-masi-500/10 flex items-center justify-center">
+                                <i class="fas fa-chart-area text-masi-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">MASI</h3>
+                                <p class="text-xs text-gray-400">Indice Global</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded-lg bg-masi-500/10 text-masi-500 text-xs font-bold">+1.24%</span>
+                    </div>
+                    <div class="text-3xl font-bold text-white mb-1">18,234.56</div>
+                    <div class="flex items-center gap-2 text-sm text-masi-500">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+223.45 pts (+1.24%)</span>
+                    </div>
+                    <div class="mt-4 h-16" id="masi-mini-chart"></div>
+                </div>
+
+                <!-- MADEX Card -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                <i class="fas fa-chart-bar text-blue-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">MADEX</h3>
+                                <p class="text-xs text-gray-400">Indice des Valeurs Actives</p>
+                            </div>
+                        </div>
+                        <span class="px-2 py-1 rounded-lg bg-red-500/10 text-red-500 text-xs font-bold">-0.45%</span>
+                    </div>
+                    <div class="text-3xl font-bold text-white mb-1">14,892.30</div>
+                    <div class="flex items-center gap-2 text-sm text-red-500">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>-67.12 pts (-0.45%)</span>
+                    </div>
+                    <div class="mt-4 h-16" id="madex-mini-chart"></div>
+                </div>
+
+                <!-- Volume & Cap -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                                <i class="fas fa-coins text-purple-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">Volume</h3>
+                                <p class="text-xs text-gray-400">Total Journalier</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-3xl font-bold text-white mb-1">1.2 Mrd</div>
+                    <div class="text-sm text-gray-400">MAD</div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="flex-1 h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full w-3/4 bg-purple-500 rounded-full"></div>
+                        </div>
+                        <span class="text-xs text-gray-400">75%</span>
+                    </div>
+                </div>
+
+                <!-- Top Mover -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                                <i class="fas fa-bolt text-yellow-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold">Top Mover</h3>
+                                <p class="text-xs text-gray-400">Meilleure Performance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-2xl font-bold text-white">ATW</div>
+                            <div class="text-sm text-gray-400">Attijariwafa Bank</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-bold text-masi-500">+3.45%</div>
+                            <div class="text-sm text-gray-400">665.00 MAD</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 text-xs text-gray-400">
+                        <i class="fas fa-clock"></i>
+                        <span>Dernière mise à jour: 15:30</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TradingView Chart Section -->
+        <section id="dashboard" class="mb-8">
+            <div class="glass-panel rounded-2xl p-1 border border-white/10">
+                <div class="flex items-center justify-between p-4 border-b border-white/10">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-xl font-bold">Graphique Avancé</h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeSymbol('CSEMA:MASI')" class="px-3 py-1.5 rounded-lg bg-masi-500/20 text-masi-500 text-sm font-medium hover:bg-masi-500/30 transition">MASI</button>
+                            <button onclick="changeSymbol('CSEMA:MADEX')" class="px-3 py-1.5 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">MADEX</button>
+                            <button onclick="changeSymbol('CSEMA:ATW')" class="px-3 py-1.5 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">ATW</button>
+                            <button onclick="changeSymbol('CSEMA:IAM')" class="px-3 py-1.5 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">IAM</button>
+                            <button onclick="changeSymbol('CSEMA:BCP')" class="px-3 py-1.5 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">BCP</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition" title="Plein écran">
+                            <i class="fas fa-expand text-gray-400"></i>
+                        </button>
+                        <button class="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition" title="Paramètres">
+                            <i class="fas fa-cog text-gray-400"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="h-[600px] w-full" id="tradingview-chart"></div>
+            </div>
+        </section>
+
+        <!-- AI Analysis & Tools Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <!-- Technical Analysis AI -->
+            <section id="analyse" class="lg:col-span-2 glass-panel rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Analyse Technique IA</h2>
+                            <p class="text-sm text-gray-400">Générée par algorithme avancé</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-masi-500/10 text-masi-500 text-xs font-medium border border-masi-500/20">
+                            <i class="fas fa-circle text-[8px] mr-1 animate-pulse"></i>
+                            IA Active
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-400">Signal Global</span>
+                            <span class="px-2 py-1 rounded-lg bg-masi-500/20 text-masi-500 text-xs font-bold">ACHAT FORT</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="relative w-24 h-24">
+                                <svg class="w-24 h-24 transform -rotate-90">
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="none" class="text-gray-700"/>
+                                    <circle cx="48" cy="48" r="40" stroke="currentColor" stroke-width="8" fill="none" class="text-masi-500" stroke-dasharray="251.2" stroke-dashoffset="37.68"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-xl font-bold">85%</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2 text-sm">
+                                    <i class="fas fa-check-circle text-masi-500"></i>
+                                    <span>Tendance Haussière</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm">
+                                    <i class="fas fa-check-circle text-masi-500"></i>
+                                    <span>RSI Neutre (58)</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm">
+                                    <i class="fas fa-check-circle text-masi-500"></i>
+                                    <span>MACD Bullish</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-400">Niveaux Clés</span>
+                            <span class="text-xs text-gray-400">Fibonacci</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-red-400">R3 (Résistance)</span>
+                                <span class="font-mono font-bold">18,450.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-red-300">R2</span>
+                                <span class="font-mono font-bold">18,320.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-masi-500">Prix Actuel</span>
+                                <span class="font-mono font-bold text-masi-500">18,234.56</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-green-300">S1</span>
+                                <span class="font-mono font-bold">18,120.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-green-400">S3 (Support)</span>
+                                <span class="font-mono font-bold">17,980.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-wave-square text-blue-400"></i>
+                            <span class="font-medium">Moyennes Mobiles</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-gray-400">EMA 20 > EMA 50</span>
+                            <span class="px-2 py-1 rounded bg-masi-500/20 text-masi-500 text-xs">Bullish</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-tachometer-alt text-purple-400"></i>
+                            <span class="font-medium">RSI (14)</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-gray-400">58.34</span>
+                            <span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 text-xs">Neutre</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-exchange-alt text-pink-400"></i>
+                            <span class="font-medium">MACD</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-gray-400">Signal Line Cross</span>
+                            <span class="px-2 py-1 rounded bg-masi-500/20 text-masi-500 text-xs">Achat</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-compress-arrows-alt text-orange-400"></i>
+                            <span class="font-medium">Bollinger Bands</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs text-gray-400">Prix proche bande sup</span>
+                            <span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 text-xs">Suracheté</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-lightbulb text-purple-400 mt-1"></i>
+                        <div>
+                            <h4 class="font-bold text-purple-400 mb-1">Recommandation IA</h4>
+                            <p class="text-sm text-gray-300 leading-relaxed">
+                                L'analyse technique suggère une tendance haussière forte sur le MASI. Le croisement haussier du MACD combiné avec le positionnement au-dessus des moyennes mobiles EMA 20 et 50 indique un momentum positif. Recommandation : <strong class="text-masi-500">Accumulation progressive</strong> avec stop-loss sous 18,120 (S1).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Money Management Calculator -->
+            <section id="money-management" class="glass-panel rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-masi-500 to-emerald-600 flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Money Management</h2>
+                            <p class="text-sm text-gray-400">Calculateur de Position IA</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Capital Total (MAD)</label>
+                        <input type="number" id="capital" value="100000" class="w-full px-4 py-3 rounded-xl input-dark font-mono text-lg" oninput="calculatePosition()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Risque par Trade (%)</label>
+                        <input type="range" id="risk-percent" min="0.5" max="5" step="0.5" value="2" class="w-full accent-masi-500" oninput="updateRiskLabel(); calculatePosition()">
+                        <div class="flex justify-between text-xs text-gray-400 mt-1">
+                            <span>0.5%</span>
+                            <span id="risk-value" class="text-masi-500 font-bold">2%</span>
+                            <span>5%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Prix d'Entrée (MAD)</label>
+                        <input type="number" id="entry-price" value="665.00" class="w-full px-4 py-3 rounded-xl input-dark font-mono" oninput="calculatePosition()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Stop Loss (MAD)</label>
+                        <input type="number" id="stop-loss" value="640.00" class="w-full px-4 py-3 rounded-xl input-dark font-mono" oninput="calculatePosition()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Take Profit (MAD)</label>
+                        <input type="number" id="take-profit" value="720.00" class="w-full px-4 py-3 rounded-xl input-dark font-mono" oninput="calculatePosition()">
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Montant Risqué</span>
+                        <span class="font-mono font-bold text-red-400" id="risk-amount">2,000 MAD</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Nombre d'Actions</span>
+                        <span class="font-mono font-bold text-white" id="shares-qty">80</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Capital Engagé</span>
+                        <span class="font-mono font-bold text-blue-400" id="capital-used">53,200 MAD</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-400">Ratio R:R</span>
+                        <span class="font-mono font-bold text-masi-500" id="risk-ratio">1:2.2</span>
+                    </div>
+                    <div class="h-px bg-white/10 my-2"></div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium">Profit Potentiel</span>
+                        <span class="font-mono font-bold text-masi-500 text-lg" id="potential-profit">+4,400 MAD</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium">Perte Potentielle</span>
+                        <span class="font-mono font-bold text-red-500" id="potential-loss">-2,000 MAD</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 rounded-lg bg-masi-500/10 border border-masi-500/20">
+                    <div class="flex items-center gap-2 text-sm text-masi-500">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="font-medium">Position optimale selon la règle des 2%</span>
+                    </div>
+                </div>
+
+                <button class="w-full mt-4 py-3 rounded-xl bg-gradient-to-r from-masi-600 to-masi-500 text-white font-bold hover:from-masi-500 hover:to-masi-400 transition shadow-lg shadow-masi-500/25">
+                    <i class="fas fa-save mr-2"></i>
+                    Sauvegarder la Stratégie
+                </button>
+            </section>
+        </div>
+
+        <!-- Stock Screener -->
+        <section id="screener" class="glass-panel rounded-2xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                        <i class="fas fa-filter text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">Screener Bourse de Casablanca</h2>
+                        <p class="text-sm text-gray-400">Filtrage avancé des 76 valeurs cotées</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition text-sm">
+                        <i class="fas fa-download mr-2"></i>Exporter CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-6">
+                <button class="px-4 py-2 rounded-lg bg-masi-500/20 text-masi-500 text-sm font-medium border border-masi-500/30">Tous les Secteurs</button>
+                <button class="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">Banques</button>
+                <button class="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">Télécoms</button>
+                <button class="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">Assurances</button>
+                <button class="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">Industrie</button>
+                <button class="px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 transition">Immobilier</button>
+                <div class="flex-1"></div>
+                <input type="text" placeholder="Rechercher une valeur..." class="px-4 py-2 rounded-lg input-dark text-sm w-64">
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/10 text-gray-400 text-sm">
+                            <th class="pb-3 font-medium">Symbole</th>
+                            <th class="pb-3 font-medium">Société</th>
+                            <th class="pb-3 font-medium">Secteur</th>
+                            <th class="pb-3 font-medium text-right">Cours</th>
+                            <th class="pb-3 font-medium text-right">Var %</th>
+                            <th class="pb-3 font-medium text-right">Volume</th>
+                            <th class="pb-3 font-medium text-right">RSI</th>
+                            <th class="pb-3 font-medium text-center">Signal IA</th>
+                            <th class="pb-3 font-medium text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">ATW</td>
+                            <td class="py-4">Attijariwafa Bank</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs">Banque</span></td>
+                            <td class="py-4 text-right font-mono">665.00</td>
+                            <td class="py-4 text-right text-masi-500 font-medium">+1.85%</td>
+                            <td class="py-4 text-right text-gray-400">1.2M</td>
+                            <td class="py-4 text-right font-mono">62.4</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-masi-500/20 text-masi-500 text-xs font-bold">ACHAT</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">IAM</td>
+                            <td class="py-4">Itissalat Al-Maghrib</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-purple-500/10 text-purple-400 text-xs">Télécom</span></td>
+                            <td class="py-4 text-right font-mono">89.99</td>
+                            <td class="py-4 text-right text-red-500 font-medium">-1.97%</td>
+                            <td class="py-4 text-right text-gray-400">856K</td>
+                            <td class="py-4 text-right font-mono">45.2</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 text-xs font-bold">NEUTRE</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">BCP</td>
+                            <td class="py-4">Banque Centrale Populaire</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs">Banque</span></td>
+                            <td class="py-4 text-right font-mono">240.00</td>
+                            <td class="py-4 text-right text-red-500 font-medium">-0.99%</td>
+                            <td class="py-4 text-right text-gray-400">2.1M</td>
+                            <td class="py-4 text-right font-mono">38.7</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-red-500/20 text-red-500 text-xs font-bold">VENTE</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">BOA</td>
+                            <td class="py-4">Bank of Africa</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs">Banque</span></td>
+                            <td class="py-4 text-right font-mono">192.00</td>
+                            <td class="py-4 text-right text-red-500 font-medium">-4.00%</td>
+                            <td class="py-4 text-right text-gray-400">3.4M</td>
+                            <td class="py-4 text-right font-mono">28.5</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-red-500/20 text-red-500 text-xs font-bold">SURVENTE</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">CIH</td>
+                            <td class="py-4">CIH Bank</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-blue-500/10 text-blue-400 text-xs">Banque</span></td>
+                            <td class="py-4 text-right font-mono">345.00</td>
+                            <td class="py-4 text-right text-red-500 font-medium">-1.15%</td>
+                            <td class="py-4 text-right text-gray-400">567K</td>
+                            <td class="py-4 text-right font-mono">52.1</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-yellow-500/20 text-yellow-500 text-xs font-bold">NEUTRE</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition">
+                            <td class="py-4 font-mono font-bold text-white">MNG</td>
+                            <td class="py-4">Managem</td>
+                            <td class="py-4"><span class="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs">Mines</span></td>
+                            <td class="py-4 text-right font-mono">13,321.00</td>
+                            <td class="py-4 text-right text-red-500 font-medium">-9.99%</td>
+                            <td class="py-4 text-right text-gray-400">124K</td>
+                            <td class="py-4 text-right font-mono">22.3</td>
+                            <td class="py-4 text-center"><span class="px-2 py-1 rounded bg-red-500/20 text-red-500 text-xs font-bold">SURVENTE</span></td>
+                            <td class="py-4 text-right">
+                                <button class="p-2 rounded-lg bg-white/5 hover:bg-masi-500/20 hover:text-masi-500 transition">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- AI Strategy Builder -->
+        <section class="glass-panel rounded-2xl p-6 mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                        <i class="fas fa-magic text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">Constructeur de Stratégie IA</h2>
+                        <p class="text-sm text-gray-400">Créez vos propres règles d'analyse technique</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <h4 class="font-bold mb-3 flex items-center gap-2">
+                        <i class="fas fa-sliders-h text-blue-400"></i>
+                        Conditions d'Entrée
+                    </h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="accent-masi-500 rounded">
+                            <span class="text-sm">RSI < 30 (Survente)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="accent-masi-500 rounded">
+                            <span class="text-sm">MACD Bullish Cross</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="accent-masi-500 rounded">
+                            <span class="text-sm">Prix > EMA 200</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="accent-masi-500 rounded">
+                            <span class="text-sm">Volume > Moyenne 20j</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <h4 class="font-bold mb-3 flex items-center gap-2">
+                        <i class="fas fa-shield-alt text-red-400"></i>
+                        Conditions de Sortie
+                    </h4>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="accent-red-500 rounded">
+                            <span class="text-sm">Stop Loss -2%</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked class="accent-masi-500 rounded">
+                            <span class="text-sm">Take Profit +6%</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="accent-masi-500 rounded">
+                            <span class="text-sm">RSI > 70</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="accent-masi-500 rounded">
+                            <span class="text-sm">Trailing Stop 1.5x ATR</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                    <h4 class="font-bold mb-3 flex items-center gap-2">
+                        <i class="fas fa-cogs text-purple-400"></i>
+                        Paramètres
+                    </h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-gray-400">Timeframe</label>
+                            <select class="w-full mt-1 px-3 py-2 rounded-lg input-dark text-sm">
+                                <option>Journalier (D1)</option>
+                                <option>4 Heures (H4)</option>
+                                <option>1 Heure (H1)</option>
+                                <option>15 Minutes (M15)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Période de Test</label>
+                            <select class="w-full mt-1 px-3 py-2 rounded-lg input-dark text-sm">
+                                <option>6 Mois</option>
+                                <option>1 An</option>
+                                <option>2 Ans</option>
+                                <option>5 Ans</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button class="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:from-purple-500 hover:to-pink-500 transition shadow-lg shadow-purple-500/25">
+                    <i class="fas fa-play mr-2"></i>
+                    Backtest la Stratégie
+                </button>
+                <button class="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition text-sm font-medium">
+                    <i class="fas fa-bell mr-2"></i>
+                    Alertes
+                </button>
+            </div>
+        </section>
+
+        <!-- Market Hours & News -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="glass-panel rounded-2xl p-6">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-clock text-blue-400"></i>
+                    Horaires de Cotation
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                        <div>
+                            <div class="font-medium">Pré-ouverture</div>
+                            <div class="text-xs text-gray-400">Fixation des prix</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-bold">09:00 - 09:30</div>
+                            <div class="text-xs text-masi-500">Terminé</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-masi-500/10 border border-masi-500/20">
+                        <div>
+                            <div class="font-medium text-masi-500">Cotation Continue</div>
+                            <div class="text-xs text-gray-400">Session principale</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-bold text-masi-500">09:30 - 15:30</div>
+                            <div class="text-xs text-masi-500 animate-pulse">En cours</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                        <div>
+                            <div class="font-medium">Fixing de Clôture</div>
+                            <div class="text-xs text-gray-400">Calcul MASI</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-bold">15:30 - 15:35</div>
+                            <div class="text-xs text-gray-400">Bientôt</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                    <div class="flex items-start gap-2 text-sm text-yellow-500">
+                        <i class="fas fa-info-circle mt-0.5"></i>
+                        <span>La bourse est fermée les samedis, dimanches et jours fériés marocains.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 glass-panel rounded-2xl p-6">
+                <h3 class="font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-newspaper text-masi-500"></i>
+                    Actualités & Flux en Direct
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-chart-line text-blue-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs text-masi-500 font-medium">MASI</span>
+                                <span class="text-xs text-gray-500">Il y a 15 min</span>
+                            </div>
+                            <h4 class="font-medium mb-1">L'indice MASI franchit la résistance des 18,200 points</h4>
+                            <p class="text-sm text-gray-400">Le marché boursier marocain affiche une tendance haussière soutenue portée par le secteur bancaire...</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-600"></i>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-building text-purple-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs text-masi-500 font-medium">ATW</span>
+                                <span class="text-xs text-gray-500">Il y a 45 min</span>
+                            </div>
+                            <h4 class="font-medium mb-1">Attijariwafa Bank publie ses résultats semestriels</h4>
+                            <p class="text-sm text-gray-400">Le groupe bancaire annonce un RNPG en hausse de 12% au premier semestre 2026...</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-600"></i>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-orange-400"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs text-red-500 font-medium">MNG</span>
+                                <span class="text-xs text-gray-500">Il y a 2h</span>
+                            </div>
+                            <h4 class="font-medium mb-1">Managem : forte volatilité sur le titre</h4>
+                            <p class="text-sm text-gray-400">Le titre chute de près de 10% en séance suite à l'annonce de la baisse des prix des métaux...</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-bourse-900/50 backdrop-blur-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-masi-500 to-blue-600 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white text-sm"></i>
+                        </div>
+                        <span class="font-bold gradient-text">MASI Trade AI</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Plateforme professionnelle d'analyse technique pour la Bourse de Casablanca. Données en temps réel et outils IA avancés.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Outils</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-masi-500 transition">Graphiques Avancés</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Screener</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Money Management</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Alertes Prix</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Données</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-masi-500 transition">Bourse de Casablanca</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">TradingView</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Investing.com</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">AMMC</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Légal</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-masi-500 transition">Conditions d'utilisation</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Politique de confidentialité</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Avertissement risques</a></li>
+                        <li><a href="#" class="hover:text-masi-500 transition">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-white/10 text-center text-sm text-gray-500">
+                <p>© 2026 MASI Trade AI. Données fournies par TradingView et la Bourse de Casablanca.</p>
+                <p class="mt-2 text-xs">Les investissements en bourse comportent des risques. Past performance is not indicative of future results.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TradingView Widget Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        let tvWidget;
+        
+        function initTradingView(symbol = 'CSEMA:MASI') {
+            if (tvWidget) tvWidget.remove();
+            
+            tvWidget = new TradingView.widget({
+                "autosize": true,
+                "symbol": symbol,
+                "interval": "D",
+                "timezone": "Africa/Casablanca",
+                "theme": "dark",
+                "style": "1",
+                "locale": "fr",
+                "toolbar_bg": "#1e293b",
+                "enable_publishing": false,
+                "withdateranges": true,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "details": true,
+                "hotlist": true,
+                "calendar": true,
+                "studies": ["RSI@tv-basicstudies", "MACD@tv-basicstudies", "MASimple@tv-basicstudies"],
+                "container_id": "tradingview-chart",
+                "watchlist": ["CSEMA:MASI", "CSEMA:MADEX", "CSEMA:ATW", "CSEMA:IAM", "CSEMA:BCP", "CSEMA:BOA", "CSEMA:CIH", "CSEMA:MNG"],
+                "news": ["headlines"],
+                "show_popup_button": true,
+                "popup_width": "1000",
+                "popup_height": "650"
+            });
+        }
+
+        function changeSymbol(symbol) {
+            initTradingView(symbol);
+        }
+
+        // Mini charts with ApexCharts
+        function initMiniCharts() {
+            const commonOptions = {
+                chart: {
+                    type: 'area',
+                    height: 64,
+                    sparkline: { enabled: true },
+                    animations: { enabled: false }
+                },
+                stroke: { curve: 'smooth', width: 2 },
+                fill: { opacity: 0.3 },
+                tooltip: { fixed: { enabled: false }, x: { show: false }, y: { title: { formatter: () => '' } }, marker: { show: false } }
+            };
+
+            new ApexCharts(document.querySelector("#masi-mini-chart"), {
+                ...commonOptions,
+                series: [{ data: [17800, 17950, 17890, 18050, 18120, 18080, 18234] }],
+                colors: ['#22c55e'],
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1, stops: [0, 100] } }
+            }).render();
+
+            new ApexCharts(document.querySelector("#madex-mini-chart"), {
+                ...commonOptions,
+                series: [{ data: [15100, 15020, 14980, 14950, 14920, 14890, 14892] }],
+                colors: ['#ef4444'],
+                fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1, stops: [0, 100] } }
+            }).render();
+        }
+
+        // Money Management Calculator
+        function updateRiskLabel() {
+            document.getElementById('risk-value').textContent = document.getElementById('risk-percent').value + '%';
+        }
+
+        function calculatePosition() {
+            const capital = parseFloat(document.getElementById('capital').value) || 0;
+            const riskPercent = parseFloat(document.getElementById('risk-percent').value) || 0;
+            const entryPrice = parseFloat(document.getElementById('entry-price').value) || 0;
+            const stopLoss = parseFloat(document.getElementById('stop-loss').value) || 0;
+            const takeProfit = parseFloat(document.getElementById('take-profit').value) || 0;
+
+            const riskAmount = capital * (riskPercent / 100);
+            const riskPerShare = Math.abs(entryPrice - stopLoss);
+            const sharesQty = riskPerShare > 0 ? Math.floor(riskAmount / riskPerShare) : 0;
+            const capitalUsed = sharesQty * entryPrice;
+            const potentialProfit = sharesQty * (takeProfit - entryPrice);
+            const potentialLoss = sharesQty * (entryPrice - stopLoss);
+            const riskRatio = potentialLoss > 0 ? (potentialProfit / potentialLoss).toFixed(1) : '0';
+
+            document.getElementById('risk-amount').textContent = riskAmount.toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' MAD';
+            document.getElementById('shares-qty').textContent = sharesQty;
+            document.getElementById('capital-used').textContent = capitalUsed.toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' MAD';
+            document.getElementById('risk-ratio').textContent = '1:' + riskRatio;
+            document.getElementById('potential-profit').textContent = '+' + potentialProfit.toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' MAD';
+            document.getElementById('potential-loss').textContent = '-' + potentialLoss.toLocaleString('fr-FR', {maximumFractionDigits: 0}) + ' MAD';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initTradingView();
+            initMiniCharts();
+            calculatePosition();
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
